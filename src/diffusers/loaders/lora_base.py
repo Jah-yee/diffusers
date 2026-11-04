@@ -698,7 +698,7 @@ class LoraBaseMixin:
     def set_adapters(
         self,
         adapter_names: list[str] | str,
-        adapter_weights: float | dict | list[float] | list[dict] | None = None,
+        adapter_weights: float | dict[str, float | dict] | list[float] | list[dict[str, float | dict]] | None = None,
     ):
         """
         Set the currently active adapters for use in the pipeline.
@@ -706,8 +706,17 @@ class LoraBaseMixin:
         Args:
             adapter_names (`list[str]` or `str`):
                 The names of the adapters to use.
-            adapter_weights (`list[float, float]`, *optional*):
-                The adapter(s) weights to use with the UNet. If `None`, the weights are set to `1.0` for all the
+            adapter_weights (`float`, `dict[str, float | dict]`, `list[float]` or `list[dict[str, float | dict]]`, *optional*):
+                The adapter(s) weights to use. The following formats are supported:
+
+                - a single `float`, applied to every adapter;
+                - a `dict` that maps a component name (e.g. `"unet"`, `"text_encoder"`) to its weight, applied to
+                  every adapter;
+                - a `list` with one entry per adapter, where each entry is either a `float` or a component-to-weight
+                  `dict`, to give each adapter a different weight.
+
+                A component weight can also be a `dict` for components that support per-block scales (e.g.
+                `{"down": 0.5, "up": {"block_0": 0.8}}`). If `None`, the weights are set to `1.0` for all the
                 adapters.
 
         Example:
